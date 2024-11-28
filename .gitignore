@@ -1,0 +1,44 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.so
+
+# Виртуальные окружения
+venv/
+.env/
+*.env
+*.venv
+
+# Директории и файлы конфигурации IDE
+.vscode/
+.idea/
+
+# Логи
+*.log
+
+# Дистрибутивы
+dist/
+build/
+*.egg-info/
+
+# Бэкапы и временные файлы
+*.bak
+*.swp
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Папка с тестами (если есть)
+tests/__pycache__/
+
+# Папки для кэширования
+*.py[cod]
+__pycache__/
+.cache/
+
+# Секретные файлы (например, конфигурации с паролями)
+*.key
+*.pem
