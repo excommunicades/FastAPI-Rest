@@ -17,7 +17,9 @@ router = APIRouter(
 )
 
 @router.post(path="/posts", response_model=ProductOut)
-def create_post(request: Request, product: ProductCreate, db: Session = Depends(get_db)):
+def create_product(request: Request, product: ProductCreate, db: Session = Depends(get_db)):
+
+    '''Creates product'''
 
     product_repository = ProductRepository(db=db)
 
