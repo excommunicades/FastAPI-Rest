@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 class ProductOut(BaseModel):
 
+    '''Information which endpoint will return'''
+
     title: str
 
     description: str
@@ -12,6 +14,8 @@ class ProductOut(BaseModel):
         orm_mode = True
 
 class ProductCreate(BaseModel):
+
+    '''Product data which endpoint will take from request'''
 
     title: str
 
