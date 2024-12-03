@@ -24,3 +24,14 @@ class ProductCreate(BaseModel):
     class Config:
 
         orm_mode = True
+
+
+class ProductGet(BaseModel):
+
+    '''Returns product by id'''
+
+    id: int
+
+    class Config:
+
+        orm_mode = True

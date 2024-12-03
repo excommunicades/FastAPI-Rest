@@ -19,3 +19,7 @@ class ProductRepository:
         self.db.refresh(db_product)
 
         return db_product
+
+    def get_product(self, product_id: int) -> Products:
+
+        return self.db.query(Products).filter(Products.id == product_id).first()

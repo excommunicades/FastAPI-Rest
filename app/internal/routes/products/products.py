@@ -1,11 +1,13 @@
 from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import Request
+from fastapi.responses import JSONResponse
 
 from app.pkg.db.database import get_db
 from app.internal.routes.products.schemas import (
     ProductOut,
+    ProductGet,
     ProductCreate,
 )
 from app.pkg.db.repositories import (
@@ -27,5 +29,28 @@ def create_product(request: Request, product: ProductCreate, db: Session = Depen
                                                 title=product.title,
                                                 description=product.description,
                                                 )
+
+    return db_product
+
+
+@router.get(path='/posts/{product_id}', response_model=ProductOut)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+
+    '''Returns one product by id'''
+
+    product_repository = ProductRepository(db=db)
+
+    db_product = product_repository.get_product(product_id=product_id)
+
+    if not db_product:
+
+        return JSONResponse(
+            status_code=404,
+            content={
+                "code": 404,
+                "error": f"Product with ID {product_id} not found.",
+                "product_id": product_id
+            }
+        )
 
     return db_product
