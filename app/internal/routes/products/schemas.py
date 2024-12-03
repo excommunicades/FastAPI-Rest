@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class ProductOut(BaseModel):
 
-    '''Information which endpoint will return'''
+    '''Schema for endpoint data output'''
 
     id: int
 
@@ -18,7 +18,7 @@ class ProductOut(BaseModel):
 
 class ProductCreate(BaseModel):
 
-    '''Product data which endpoint will take from request'''
+    '''Schema for product create data input'''
 
     title: str
 
@@ -31,7 +31,7 @@ class ProductCreate(BaseModel):
 
 class ProductUpdate(BaseModel):
 
-    '''Updates Product'''
+    '''Schema for product update data input'''
 
     id: int
 

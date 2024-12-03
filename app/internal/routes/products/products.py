@@ -1,5 +1,4 @@
 from typing import List, Optional
-
 from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,11 +11,9 @@ from app.internal.routes.products.schemas import (
     ProductCreate,
     ProductUpdate,
 )
-
 from app.pkg.db.repositories import (
     ProductRepository
 )
-
 from app.internal.routes.products.services import ProductService
 
 router = APIRouter(
@@ -29,6 +26,8 @@ def get_product_service(db: Session = Depends(get_db)) -> ProductService:
 
 @router.post("/posts", response_model=ProductOut)
 def create_product(product: ProductCreate, product_service: ProductService = Depends(get_product_service)):
+
+    '''Creates product'''
 
     try:
 
@@ -43,6 +42,8 @@ def create_product(product: ProductCreate, product_service: ProductService = Dep
 @router.get("/posts", response_model=List[ProductOut])
 def get_product_list(product_service: ProductService = Depends(get_product_service)):
 
+    '''Return product list'''
+
     db_product_list = product_service.get_product_list()
 
     if not db_product_list:
@@ -54,6 +55,8 @@ def get_product_list(product_service: ProductService = Depends(get_product_servi
 @router.get("/posts/{product_id}", response_model=ProductOut)
 def get_product(product_id: int, product_service: ProductService = Depends(get_product_service)):
 
+    '''Return product'''
+
     db_product = product_service.get_product(product_id)
 
     if not db_product:
@@ -64,6 +67,8 @@ def get_product(product_id: int, product_service: ProductService = Depends(get_p
 
 @router.put("/posts/{product_id}", response_model=ProductOut)
 def update_product(product_id: int, title: Optional[str] = None, description: Optional[str] = None, product_service: ProductService = Depends(get_product_service)):
+
+    '''Update product'''
 
     if not title and not description:
 
@@ -79,6 +84,8 @@ def update_product(product_id: int, title: Optional[str] = None, description: Op
 
 @router.delete("/posts/{product_id}", response_model=ProductOut)
 def delete_product(product_id: int, product_service: ProductService = Depends(get_product_service)):
+
+    '''Delete product'''
 
     db_product = product_service.delete_product(product_id)
 
