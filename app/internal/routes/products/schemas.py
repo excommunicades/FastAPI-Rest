@@ -5,6 +5,8 @@ class ProductOut(BaseModel):
 
     '''Information which endpoint will return'''
 
+    id: int
+
     title: str
 
     description: str
@@ -27,11 +29,15 @@ class ProductCreate(BaseModel):
         orm_mode = True
 
 
-class ProductGet(BaseModel):
+class ProductUpdate(BaseModel):
 
-    '''Returns product by id'''
+    '''Updates Product'''
 
     id: int
+
+    title: str
+
+    description: str
 
     class Config:
 

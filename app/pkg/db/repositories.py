@@ -28,3 +28,25 @@ class ProductRepository:
     def get_product_list(self) -> list[Products]:
 
         return self.db.query(Products).all()
+
+    def update_product(self, product_id: int, title: str = None, description: str = None) -> Products:
+
+        db_product = self.db.query(Products).filter(Products.id == product_id).first()
+
+        if db_product:
+
+            if title:
+
+                db_product.title = title
+
+            if description:
+
+                db_product.description = description
+
+            self.db.commit()
+
+            self.db.refresh(db_product)
+
+            return db_product
+
+        return None

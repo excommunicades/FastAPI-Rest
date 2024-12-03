@@ -7,8 +7,8 @@ from fastapi.responses import JSONResponse
 from app.pkg.db.database import get_db
 from app.internal.routes.products.schemas import (
     ProductOut,
-    ProductGet,
     ProductCreate,
+    ProductUpdate,
 )
 from app.pkg.db.repositories import (
     ProductRepository
@@ -34,7 +34,7 @@ def create_product(request: Request, product: ProductCreate, db: Session = Depen
 
 
 @router.get(path='/posts', response_model=list[ProductOut])
-def get_product(db: Session = Depends(get_db)):
+def get_product_list(db: Session = Depends(get_db)):
 
     '''Returns one product by id'''
 
@@ -77,3 +77,18 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 
     return db_product
 
+
+@router.put(path='/posts/{product_id}', response_model=ProductOut)
+def update_product(product_id: int, title: str = None, description: str = None, db: Session = Depends(get_db)):
+
+    '''Update product by id'''
+
+    product_repository = ProductRepository(db=db)
+
+    db_product = product_repository.update_product(
+                                            product_id=product_id,
+                                            title=title,
+                                            description=description
+                                        )
+
+    return db_product
