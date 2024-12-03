@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,108 +12,78 @@ from app.internal.routes.products.schemas import (
     ProductCreate,
     ProductUpdate,
 )
+
 from app.pkg.db.repositories import (
     ProductRepository
 )
+
+from app.internal.routes.products.services import ProductService
 
 router = APIRouter(
     prefix='/api/v1'
 )
 
-@router.post(path="/posts", response_model=ProductOut)
-def create_product(request: Request, product: ProductCreate, db: Session = Depends(get_db)):
+def get_product_service(db: Session = Depends(get_db)) -> ProductService:
 
-    '''Creates product'''
+    return ProductService(db)
 
-    product_repository = ProductRepository(db=db)
+@router.post("/posts", response_model=ProductOut)
+def create_product(product: ProductCreate, product_service: ProductService = Depends(get_product_service)):
 
-    db_product = product_repository.create_product(
-                                                title=product.title,
-                                                description=product.description,
-                                                )
+    try:
 
-    return db_product
+        db_product = product_service.create_product(title=product.title, description=product.description)
 
+        return db_product
 
-@router.get(path='/posts', response_model=list[ProductOut])
-def get_product_list(db: Session = Depends(get_db)):
+    except ValueError as e:
 
-    '''Returns one product by id'''
+        raise HTTPException(status_code=400, detail=str(e))
 
-    product_repository = ProductRepository(db=db)
+@router.get("/posts", response_model=List[ProductOut])
+def get_product_list(product_service: ProductService = Depends(get_product_service)):
 
-    db_product_list = product_repository.get_product_list()
-    print(db_product_list)
+    db_product_list = product_service.get_product_list()
+
     if not db_product_list:
 
-        return JSONResponse(
-            status_code=404,
-            content={
-                "code": 404,
-                "error": "Products not found",
-            }
-        )
+        raise HTTPException(status_code=404, detail="Products not found")
 
-    return [ProductOut.from_orm(product) for product in db_product_list]
+    return db_product_list
 
+@router.get("/posts/{product_id}", response_model=ProductOut)
+def get_product(product_id: int, product_service: ProductService = Depends(get_product_service)):
 
-@router.get(path='/posts/{product_id}', response_model=ProductOut)
-def get_product(product_id: int, db: Session = Depends(get_db)):
-
-    '''Returns one product by id'''
-
-    product_repository = ProductRepository(db=db)
-
-    db_product = product_repository.get_product(product_id=product_id)
+    db_product = product_service.get_product(product_id)
 
     if not db_product:
 
-        return JSONResponse(
-            status_code=404,
-            content={
-                "code": 404,
-                "error": f"Product with ID {product_id} not found.",
-                "product_id": product_id
-            }
-        )
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
 
     return db_product
 
+@router.put("/posts/{product_id}", response_model=ProductOut)
+def update_product(product_id: int, title: Optional[str] = None, description: Optional[str] = None, product_service: ProductService = Depends(get_product_service)):
 
-@router.put(path='/posts/{product_id}', response_model=ProductOut)
-def update_product(product_id: int, title: str = None, description: str = None, db: Session = Depends(get_db)):
+    if not title and not description:
 
-    '''Update product by id'''
-
-    product_repository = ProductRepository(db=db)
-
-    db_product = product_repository.update_product(
-                                            product_id=product_id,
-                                            title=title,
-                                            description=description
-                                        )
-
-    return db_product
-
-
-@router.delete(path='/posts/{product_id}', response_model=ProductOut)
-def delete_product(product_id: int, db: Session = Depends(get_db)):
-
-    '''Deletes product by id'''
-
-    product_repository = ProductRepository(db=db)
-
-    db_product = product_repository.delete_product(product_id=product_id)
+        raise HTTPException(status_code=400, detail="Both fields, title and description, cannot be empty.")
+    
+    db_product = product_service.update_product(product_id, title, description)
 
     if not db_product:
 
-        return JSONResponse(
-            status_code=404,
-            content={
-                'code': 404,
-                'error': f'Product with ID {product_id} not found.',
-                'id': product_id
-            }
-        )
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
+    
+    return db_product
+
+@router.delete("/posts/{product_id}", response_model=ProductOut)
+def delete_product(product_id: int, product_service: ProductService = Depends(get_product_service)):
+
+    db_product = product_service.delete_product(product_id)
+
+    if not db_product:
+
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
 
     return db_product

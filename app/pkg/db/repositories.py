@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.pkg.db.models import (
     Products,
 )
@@ -12,13 +14,21 @@ class ProductRepository:
 
     def create_product(self, title: str, description: str) -> Products:
 
-        db_product = Products(title=title, description=description)
+        try:
 
-        self.db.add(db_product)
-        self.db.commit()
-        self.db.refresh(db_product)
+            db_product = Products(title=title, description=description)
 
-        return db_product
+            self.db.add(db_product)
+            self.db.commit()
+            self.db.refresh(db_product)
+
+            return db_product
+
+        except SQLAlchemyError as e:
+
+            self.db.rollback()
+
+            raise Exception("Error creating product") from e
 
     def get_product(self, product_id: int) -> Products:
 
@@ -35,11 +45,11 @@ class ProductRepository:
 
         if db_product:
 
-            if title:
+            if title is not None:
 
                 db_product.title = title
 
-            if description:
+            if description is not None:
 
                 db_product.description = description
 
