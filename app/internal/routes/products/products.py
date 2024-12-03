@@ -92,3 +92,26 @@ def update_product(product_id: int, title: str = None, description: str = None, 
                                         )
 
     return db_product
+
+
+@router.delete(path='/posts/{product_id}', response_model=ProductOut)
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+
+    '''Deletes product by id'''
+
+    product_repository = ProductRepository(db=db)
+
+    db_product = product_repository.delete_product(product_id=product_id)
+
+    if not db_product:
+
+        return JSONResponse(
+            status_code=404,
+            content={
+                'code': 404,
+                'error': f'Product with ID {product_id} not found.',
+                'id': product_id
+            }
+        )
+
+    return db_product

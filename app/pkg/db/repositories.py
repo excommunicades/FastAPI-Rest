@@ -50,3 +50,17 @@ class ProductRepository:
             return db_product
 
         return None
+
+    def delete_product(self, product_id: str) -> Products | None:
+
+        db_product = self.db.query(Products).filter(Products.id == product_id).first()
+
+        if db_product:
+
+            self.db.delete(db_product)
+
+            self.db.commit()
+
+            return db_product
+
+        return None
