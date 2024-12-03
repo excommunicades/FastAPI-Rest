@@ -33,6 +33,28 @@ def create_product(request: Request, product: ProductCreate, db: Session = Depen
     return db_product
 
 
+@router.get(path='/posts', response_model=list[ProductOut])
+def get_product(db: Session = Depends(get_db)):
+
+    '''Returns one product by id'''
+
+    product_repository = ProductRepository(db=db)
+
+    db_product_list = product_repository.get_product_list()
+    print(db_product_list)
+    if not db_product_list:
+
+        return JSONResponse(
+            status_code=404,
+            content={
+                "code": 404,
+                "error": "Products not found",
+            }
+        )
+
+    return [ProductOut.from_orm(product) for product in db_product_list]
+
+
 @router.get(path='/posts/{product_id}', response_model=ProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
 
@@ -54,3 +76,4 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         )
 
     return db_product
+
